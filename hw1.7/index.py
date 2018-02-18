@@ -52,12 +52,7 @@ class Goose(FlyingAnimal):
     sound = 'га... га'
 
 
-animals = []
-animals.append(Pig())
-animals.append(Sheep())
-animals.append(FlyingAnimal())
-animals.append(Hen())
-animals.append(Goose())
+animals = [Pig(), Sheep(), FlyingAnimal(), Hen(), Goose()]
 
 for animal in animals:
     animal.make_sound()
