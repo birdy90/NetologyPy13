@@ -1,29 +1,45 @@
+import os
+
+
+def ingredient_from_line(line):
+    data = line.split(' | ')
+    ingredient = {
+        'ingredient_name': data[0],
+        'quantity': int(data[1]),
+        'measure': data[2],
+    }
+    return ingredient
+
+
 def read_data():
-    import os
     base_dir = os.path.dirname(__file__)
-    lines = open(os.path.join(base_dir, 'data.txt'), 'r', encoding='utf-8').readlines()
-    lines = [l[:-1].lower() for l in lines]  # убираем переносы строк и приводим к единому виду
     cook_book = {}
-    i = 0
-    while i < len(lines):
-        cook_book[lines[i]] = []
-        number_of_ingredients = int(lines[i+1])
-        for j in range(0, number_of_ingredients):
-            data = lines[i + j + 2].split(' | ')
-            ingredient = {
-                'ingredient_name': data[0],
-                'quantity': int(data[1]),
-                'measure': data[2],
-            }
-            cook_book[lines[i]].append(ingredient)
-        i += number_of_ingredients + 3
+
+    with open(os.path.join(base_dir, 'data.txt'), 'r', encoding='utf-8') as datafile:
+        lines = datafile.readlines()
+        lines = [l.strip().lower() for l in lines]
+
+        i = 0
+        dish = None
+        for line in lines:
+            if not line:
+                dish = None
+                continue
+            elif dish is None:
+                cook_book[dish] = []
+                dish = line
+                continue
+
+            cook_book[dish].append(ingredient_from_line(line))
+
     return cook_book
 
 
 def get_shop_list_by_dishes(dishes, person_count):
     shop_list = {}
+    cook_book = read_data()
     for dish in dishes:
-        for ingredient in read_data()[dish]:
+        for ingredient in cook_book[dish]:
             new_shop_list_item = dict(ingredient)
 
             new_shop_list_item['quantity'] *= person_count
