@@ -43,6 +43,7 @@ def translate_it(text, translate_direction):
      & [callback=<имя callback-функции>]
 
     :param text: <str> text for translation.
+    :param translate_direction: <str> pair of lang codes divided by a hyphen; it's passed to yandex translator as param.
     :return: <str> translated text.
     """
     url = 'https://translate.yandex.net/api/v1.5/tr.json/translate'
