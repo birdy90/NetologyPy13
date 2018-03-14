@@ -36,33 +36,35 @@
 # не забываем организовывать собственный код в функции
 
 import os
-
-migrations = 'Migrations'
-current_dir = os.path.dirname(os.path.abspath(__file__))
-migrations_dir = os.path.join(current_dir, 'Migrations')
-files = os.listdir(migrations_dir)
+import chardet
 
 
-def detect_charset(file_path):
-    import chardet
-    file = open(file_path, 'rb+')
-    data = file.readline()
-    return chardet.detect(data)['encoding']
+def file_extension(filename):
+    return filename.split('.')[-1]
 
 
 def find_in_file(string, filename):
     file_path = os.path.join(migrations_dir, filename)
     try:
-        for line in open(file_path, 'r+', encoding=detect_charset(file_path)).readlines():
-            found = string in line.lower()
-            if found:
-                return True
-    except Exception as e:
-        pass
+        with open(file_path, 'rb') as file:
+            data = file.read()
+            encoding = chardet.detect(data)['encoding']
+            lines = data.decode(encoding).split(os.linesep)
+            for line in lines:
+                if string in line.lower():
+                    return True
+    except FileExistsError:
+        print('Файл не найден ({})'.format(file_path))
     return False
 
 
 if __name__ == '__main__':
+
+    source_dir = 'Migrations'
+    current_dir = os.path.dirname(os.path.abspath(__file__))
+    migrations_dir = os.path.join(current_dir, source_dir)
+    files = [f for f in os.listdir(migrations_dir) if file_extension(f) == 'sql']
+
     while len(files) > 1:
         search_string = input('Введите строку: ').lower()
         files = [file for file in files if find_in_file(search_string, file)]
@@ -71,5 +73,5 @@ if __name__ == '__main__':
             print('... большой список файлов ...')
         else:
             for file in files:
-                print('Migrations/%s' % file)
-        print('Всего %d' % files_count)
+                print('{}/{}'.format(source_dir, file))
+        print('Всего {}'.format(files_count))
